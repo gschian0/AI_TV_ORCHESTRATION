@@ -6,13 +6,8 @@ set -euo pipefail
 
 GRADIO_PORT="${GRADIO_PORT:-7862}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-if [[ -f /root/.env ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source /root/.env
-  set +a
-fi
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/load-env.sh" 2>/dev/null || true
 
 if [[ -n "${NGROK_AUTHTOKEN:-}" ]] && command -v ngrok >/dev/null 2>&1; then
   if bash "$SCRIPT_DIR/start_ngrok_gradio.sh" 2>/tmp/ngrok-try.log | grep -q 'Gradio (phone):'; then

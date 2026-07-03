@@ -2,15 +2,17 @@
 
 Use this after stopping a pod **without** the network volume, or to clone the stack on a fresh GPU.
 
-## What you need backed up (not in git)
+## What you need backed up
 
-| Item | Location | Notes |
-|------|----------|-------|
-| Secrets | `/root/.env` | HF, Twitch, NVIDIA, ngrok — copy to password manager |
-| Stack profile | `/workspace/.stack-profile.env` | Example in `stack-profile.env.example` |
-| Model weights | `/workspace/FluxRT/weights/` | ~30GB; re-download with `download_weights.sh` if missing |
+| Item | Location | In git? |
+|------|----------|---------|
+| **Secrets** | `AI_TV_ORCHESTRATION/.env` | No — copy from `.env.example`, fill keys |
+| Stack profile | `/workspace/.stack-profile.env` | Example: `stack-profile.env.example` |
+| Model weights | `/workspace/FluxRT/weights/` | No — re-download with `download_weights.sh` |
 
-If you **keep the RunPod network volume** attached, `/workspace` (FluxRT, models, scripts) survives — only restore `/root/.env`.
+**Secrets live in the orchestration repo folder**, not `/root/.env`. See [ENV.md](ENV.md).
+
+If you **keep the RunPod network volume**, `/workspace` (including `AI_TV_ORCHESTRATION/.env` if you put it there) survives pod stops.
 
 ## 1. New pod with RTX 5090
 
@@ -36,10 +38,11 @@ chmod +x /workspace/*.sh /workspace/scripts/*.sh
 ## 3. Secrets + profile
 
 ```bash
-cp /workspace/AI_TV_ORCHESTRATION/.env.example /root/.env
-nano /root/.env   # paste your saved keys
+cd /workspace/AI_TV_ORCHESTRATION
+cp .env.example .env
+nano .env   # HF, NVIDIA, Twitch, ngrok API key + endpoint — see docs/ENV.md
 
-cp /workspace/AI_TV_ORCHESTRATION/stack-profile.env.example /workspace/.stack-profile.env
+cp stack-profile.env.example /workspace/.stack-profile.env
 ```
 
 ## 4. Bootstrap
@@ -56,7 +59,7 @@ Gradio UI: `http://127.0.0.1:7862` (or RunPod proxy port 7862).
 
 ```bash
 bash /workspace/scripts/start_ngrok_gradio.sh
-# Opens Gradio at NGROK_ENDPOINT_URL from /root/.env
+# Opens Gradio at NGROK_ENDPOINT_URL from AI_TV_ORCHESTRATION/.env
 ```
 
 Webcam in Gradio requires HTTPS (ngrok or RunPod proxy).
@@ -76,7 +79,7 @@ Fanout → Twitch RTMP + HLS :8090
 | Symptom | Fix |
 |---------|-----|
 | Twitch video frozen | Ensure `BROADCAST_FPS=8` matches fanout `FPS=8` (default in `5090-runpod`) |
-| No Twitch | Check `TWITCH_STREAM_KEY` in `/root/.env` |
+| No Twitch | Check `TWITCH_STREAM_KEY` in `AI_TV_ORCHESTRATION/.env` |
 | Webcam blocked | Use HTTPS (ngrok), not raw `http://IP:7862` |
 | GPU OOM | Set `MUSICGEN_DELAY=180` in `.stack-profile.env` |
 

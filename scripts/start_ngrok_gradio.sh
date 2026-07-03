@@ -6,12 +6,9 @@ LOG_FILE="${LOG_FILE:-/tmp/ngrok-${GRADIO_PORT}.log}"
 PID_FILE="${PID_FILE:-/tmp/ngrok-${GRADIO_PORT}.pid}"
 API_URL="http://127.0.0.1:4040/api/tunnels"
 
-if [[ -f /root/.env ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source /root/.env
-  set +a
-fi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/load-env.sh" 2>/dev/null || true
 
 if ! command -v ngrok >/dev/null 2>&1; then
   curl -sSL https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.tgz -o /tmp/ngrok.tgz
@@ -19,12 +16,23 @@ if ! command -v ngrok >/dev/null 2>&1; then
   chmod +x /usr/local/bin/ngrok
 fi
 
+_persist_env_var() {
+  local key="$1" value="$2" target="${AI_TV_ENV_FILE:-}"
+  [[ -n "$target" && -f "$target" ]] || return 0
+  if grep -q "^${key}=" "$target" 2>/dev/null; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$target"
+  else
+    echo "${key}=${value}" >> "$target"
+  fi
+}
+
 ensure_agent_authtoken() {
   if [[ -n "${NGROK_AUTHTOKEN:-}" ]]; then
     return 0
   fi
   if [[ -z "${NGROK_APIKEY:-}" ]]; then
-    echo "Set NGROK_APIKEY or NGROK_AUTHTOKEN in /root/.env"
+    echo "Set NGROK_APIKEY or NGROK_AUTHTOKEN in AI_TV_ORCHESTRATION/.env"
+    echo "  See docs/ENV.md — copy .env.example to .env in the repo folder."
     echo "  API key:  https://dashboard.ngrok.com/api-keys"
     echo "  Authtoken: https://dashboard.ngrok.com/get-started/your-authtoken"
     exit 1
@@ -40,11 +48,7 @@ ensure_agent_authtoken() {
     echo "Failed to create agent authtoken from API key."
     exit 1
   fi
-  if grep -q '^NGROK_AUTHTOKEN=' /root/.env 2>/dev/null; then
-    sed -i "s|^NGROK_AUTHTOKEN=.*|NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}|" /root/.env
-  else
-    echo "NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}" >> /root/.env
-  fi
+  _persist_env_var NGROK_AUTHTOKEN "$NGROK_AUTHTOKEN"
 }
 
 ensure_cloud_endpoint_policy() {

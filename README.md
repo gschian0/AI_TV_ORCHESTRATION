@@ -1,131 +1,121 @@
 # AI TV Orchestration
 
-Master repo for the AI TV stack: visual plugins, audio plugins, spatial/3D plugins, and broadcast output — orchestrated from one place so you can spin the stack up on any GPU pod.
+Master repo for the **AI TV stack** — an automated AI broadcast pipeline on RunPod (RTX 5090): real-time FLUX video, AI music, quote TTS, and Twitch output.
+
+This repo does **not** contain model code. It holds secrets templates, stack profiles, tunnel scripts, plugin manifests, and **the docs that explain how the vendor repos fit together**.
+
+## Repositories
+
+| Repo | Branch | Role | AI TV doc |
+|------|--------|------|-----------|
+| **AI_TV_ORCHESTRATION** (this repo) | `main` | Secrets, profiles, ngrok, restore | — |
+| [FluxRT](https://github.com/gschian0/FluxRT) | `5090-runpod` | Real-time AI video + streaming scripts | [docs/FLUXRT.md](docs/FLUXRT.md) |
+| [ai-tv-stack-scripts](https://github.com/gschian0/ai-tv-stack-scripts) | `5090-runpod` | Bootstrap, setup, start/stop, tmux | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) |
+
+Read **FLUXRT.md** for what the visual engine does. Read **STACK-SCRIPTS.md** for how to boot and run the full stack. The upstream READMEs on those repos include generic / legacy info; these docs are scoped to **your AI TV deployment**.
 
 ## Quick start (RunPod)
 
 ```bash
-# 1. Secrets
-cp AI_TV_ORCHESTRATION/.env.example /root/.env
-nano /root/.env
+# 1. Clone all three repos
+cd /workspace
+git clone https://github.com/gschian0/AI_TV_ORCHESTRATION.git
+git clone -b 5090-runpod https://github.com/gschian0/FluxRT.git
+git clone -b 5090-runpod https://github.com/gschian0/ai-tv-stack-scripts.git
 
-# 2. Clone vendors (sibling dirs under /workspace)
-git clone -b 5090-runpod https://github.com/gschian0/FluxRT /workspace/FluxRT
-git clone -b 5090-runpod https://github.com/gschian0/ai-tv-stack-scripts /workspace/ai-tv-stack-scripts
+# 2. Secrets — copy template in THIS repo folder
+cp AI_TV_ORCHESTRATION/.env.example AI_TV_ORCHESTRATION/.env
+nano AI_TV_ORCHESTRATION/.env
 
-# 3. Setup + start
+# 3. Stack profile (non-secret tuning)
+cp AI_TV_ORCHESTRATION/stack-profile.env.example /workspace/.stack-profile.env
+
+# 4. Wire workspace scripts
+ln -sf /workspace/ai-tv-stack-scripts/*.sh /workspace/
+mkdir -p /workspace/scripts
+cp /workspace/AI_TV_ORCHESTRATION/scripts/*.sh /workspace/scripts/
+chmod +x /workspace/*.sh /workspace/scripts/*.sh
+
+# 5. Install + run
 bash /workspace/full_setup.sh
 bash /workspace/start_stack.sh
-
-# 4. Remote UI on your phone (HTTPS tunnel)
 bash /workspace/scripts/start_ngrok_gradio.sh
 ```
 
-## Plugin architecture
+## Documentation
 
-```
-AI_TV_ORCHESTRATION/
-  plugins/
-    visual/     fluxrt (active) — FLUX diffusion video
-    audio/      musicgen, quote-tts, audio-mix-bus (active)
-    spatial/    depth, 360-cam, 3d-cam, human-tracking, ai-greenscreen (planned)
-    output/     twitch-fanout (active)
-```
+| Doc | Contents |
+|-----|----------|
+| [docs/ENV.md](docs/ENV.md) | `.env` in repo folder — HF, NVIDIA, Gemini, Twitch, ngrok |
+| [docs/FLUXRT.md](docs/FLUXRT.md) | FluxRT fork for AI TV — UDP 5000, Gradio, quotes, fanout scripts |
+| [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) | Bootstrap, tmux windows, station presets, daily commands |
+| [docs/RESTORE.md](docs/RESTORE.md) | New pod / volume restore checklist |
+| [docs/VIDEO_LOGIC.md](docs/VIDEO_LOGIC.md) | Video pipeline notes (bridge off, 8fps, mix bus) |
 
-Each plugin has a `plugin.yaml` manifest (ports, env, status). Swap flavors by changing the profile — e.g. replace `visual.fluxrt` with a future spatial pipeline without rewriting the whole stack.
+## Secrets (`.env`)
 
-| Plugin | Status | Role |
-|--------|--------|------|
-| `visual.fluxrt` | **active** | AI video filter → UDP 5000 |
-| `audio.musicgen` | **active** | AI music → UDP 5002 |
-| `audio.quote-tts` | **active** | Voice quotes → UDP 5004 |
-| `audio.mix-bus` | **active** | Duck music under TTS → UDP 5006 |
-| `output.twitch-fanout` | **active** | Twitch + HLS monitor |
-| `spatial.*` | planned | Depth, 360°, 3D cams, tracking, AI greenscreen |
-
-## Remote access — ngrok (phone / browser)
-
-Gradio runs on the pod at **port 7862**. That port is only reachable on the pod’s private network unless you expose it.
-
-### Why you need ngrok (or similar)
-
-| Access method | URL example | Phone? | Webcam? |
-|---------------|-------------|--------|---------|
-| Raw `http://IP:7862` | `http://203.0.113.5:7862` | Often blocked / no HTTPS | **No** — browsers block camera on HTTP |
-| RunPod proxy | `https://pod-id-7862.proxy.runpod.net` | Yes (HTTPS) | Yes |
-| **ngrok** | `https://your-subdomain.ngrok-free.dev` | Yes (HTTPS) | Yes |
-
-**You cannot use your phone’s webcam in Gradio unless the page is served over HTTPS.** Browsers treat `getUserMedia()` (webcam/mic) as a secure context only — `https://` or `localhost`. A plain `http://` address to a remote IP will load the UI but **webcam mode will fail** with a permissions / insecure context error.
-
-ngrok gives you a public **HTTPS** URL that tunnels to `http://127.0.0.1:7862` on the pod, so you can:
-
-- Open the Gradio UI on your phone from anywhere
-- Change prompts, start/stop fanout, quote voice, etc.
-- Use **webcam input** from your phone browser (HTTPS required)
-
-### ngrok credentials (two different things)
-
-Put these in `/root/.env`:
+**Put secrets in `AI_TV_ORCHESTRATION/.env`** — same folder as `.env.example`. Never commit `.env`.
 
 ```bash
-# REST API — manage endpoints from scripts (NOT the same as authtoken)
-NGROK_APIKEY=your_ngrok_api_key
-
-# Agent token — local ngrok process uses this to connect (auto-created if missing)
-NGROK_AUTHTOKEN=...
-
-# Your cloud endpoint from ngrok dashboard
-NGROK_ENDPOINT_URL=https://your-subdomain.ngrok-free.dev
-NGROK_ENDPOINT_ID=ep_your_endpoint_id
+cp .env.example .env && nano .env
 ```
 
-| Variable | What it is |
-|----------|------------|
-| `NGROK_APIKEY` | **API key** from [dashboard.ngrok.com/api-keys](https://dashboard.ngrok.com/api-keys). Used by our scripts to configure your cloud endpoint and create an agent authtoken. Safe to use in automation; still keep it secret. |
-| `NGROK_AUTHTOKEN` | **Agent authtoken** — proves the `ngrok` binary on the pod to ngrok’s servers. Created automatically via API key, or copy from [get-started/your-authtoken](https://dashboard.ngrok.com/get-started/your-authtoken). |
-| `NGROK_ENDPOINT_URL` | Stable public HTTPS URL you created in the ngrok dashboard. |
-| `NGROK_ENDPOINT_ID` | Endpoint ID (`ep_…`) for traffic-policy updates via API. |
+Includes: `GITHUB_PAT`, `HF_TOKEN`, `NVIDIA_API_KEY`, `TWITCH_STREAM_KEY`, ngrok API key + endpoint, optional `GEMINI_API_KEY`. Details: [ENV.md](docs/ENV.md).
 
-**Common mistake:** pasting the API key into `NGROK_AUTHTOKEN`. The agent will reject it (`ERR_NGROK_107`). Use `NGROK_APIKEY` for the API key; let `start_ngrok_gradio.sh` create the agent token.
+## Current stack topology
 
-### Start the tunnel
-
-```bash
-bash /workspace/scripts/start_ngrok_gradio.sh
-# → Gradio (phone): https://your-subdomain.ngrok-free.dev
-```
-
-On ngrok free tier, the first visit may show an interstitial — tap **Visit Site**. Then Gradio loads over HTTPS.
-
-Fallback (no ngrok account): `bash /workspace/scripts/start_cloudflared_gradio.sh` — gives a random `*.trycloudflare.com` URL (changes each restart).
-
-## Stack topology (current hybrid profile)
+Hybrid **5090-runpod** profile (`stack-profile.env.example`):
 
 ```
-IPTV → FluxRT (7862) → UDP 5000 ─┐
+IPTV → Gradio (7862) → UDP 5000 ─┐
 MusicGen → UDP 5002 ─┐           │
 Quote TTS → UDP 5004 ┤→ mix → 5006 ─┤→ Twitch fanout → Twitch + HLS :8090
                      └─────────────┘
 ```
 
-Profile: `/workspace/.stack-profile.env`  
-Video notes: `/workspace/VIDEO_LOGIC.md`  
-**Restore on new pod:** [docs/RESTORE.md](docs/RESTORE.md)
+- Bridge **off** — Gradio encodes to UDP 5000 at **8 fps**
+- Quote TTS on 5004 (no silence feed)
+- Sidechain mix bus ducks music under quotes
+
+## Plugin manifests
+
+```
+plugins/
+  visual/fluxrt          active — AI video → UDP 5000
+  audio/musicgen         active — AI music → UDP 5002
+  audio/quote-tts        active — Magpie TTS → UDP 5004
+  audio/audio-mix-bus    active — duck mix → UDP 5006
+  output/twitch-fanout   active — RTMP + HLS
+  spatial/*              planned
+```
+
+## Remote access (phone / webcam)
+
+Gradio needs **HTTPS** for phone webcam. Use ngrok with your free-tier endpoint:
+
+```bash
+bash /workspace/scripts/start_ngrok_gradio.sh
+# Uses NGROK_APIKEY + NGROK_ENDPOINT_URL from AI_TV_ORCHESTRATION/.env
+```
+
+| Method | HTTPS | Webcam |
+|--------|-------|--------|
+| RunPod proxy `:7862` | Yes | Yes |
+| ngrok cloud endpoint | Yes | Yes |
+| Raw `http://IP:7862` | No | Blocked |
+
+See [ENV.md](docs/ENV.md) for ngrok API key vs authtoken.
 
 ## Commands
 
 ```bash
-bash /workspace/start_stack.sh      # start full stack (tmux)
-bash /workspace/stop_stack.sh       # stop everything
-bash /workspace/check_stack.sh      # status + logs
-bash /workspace/scripts/start_ngrok_gradio.sh   # HTTPS tunnel for phone
+bash /workspace/start_stack.sh
+bash /workspace/stop_stack.sh
+bash /workspace/check_stack.sh
+bash /workspace/scripts/start_ngrok_gradio.sh
+tmux attach -t fluxrt
 ```
 
-## Vendors (not vendored into this repo)
+## License
 
-| Repo | Branch | Path |
-|------|--------|------|
-| [FluxRT](https://github.com/gschian0/FluxRT) | `5090-runpod` | `/workspace/FluxRT` |
-| [ai-tv-stack-scripts](https://github.com/gschian0/ai-tv-stack-scripts) | `5090-runpod` | `/workspace/ai-tv-stack-scripts` |
-
-This orchestration repo owns **profiles, plugin manifests, tunnel scripts, and docs** — not the model code itself.
+Orchestration docs and scripts: use with the FluxRT fork and stack scripts under their respective licenses.
