@@ -2,14 +2,14 @@
 
 Master repo for the **AI TV stack** — an automated AI broadcast pipeline on RunPod (RTX 5090): real-time FLUX video, AI music, quote TTS, and Twitch output.
 
-This repo is **public**. FluxRT and stack scripts stay **private** — see [docs/REPOS.md](docs/REPOS.md).
+This repo is **public**. **FluxRT** is public; **stack scripts** are private. See [docs/REPOS.md](docs/REPOS.md). Streaming ops code in FluxRT will move out over time.
 
 ## Repositories
 
-| Repo | Branch | Role | AI TV doc |
-|------|--------|------|-----------|
+| Repo | Visibility | Branch | Role | Doc |
+|------|------------|--------|------|-----|
 | **AI_TV_ORCHESTRATION** (here) | Public | `main` | Docs, templates, ngrok | [REPOS.md](docs/REPOS.md) |
-| FluxRT (your fork) | **Private** | `5090-runpod` | AI video + streaming | [FLUXRT.md](docs/FLUXRT.md) |
+| [FluxRT](https://github.com/gschian0/FluxRT) | Public | `5090-runpod` | AI video (+ streaming scripts for now) | [FLUXRT.md](docs/FLUXRT.md) |
 | ai-tv-stack-scripts | **Private** | `5090-runpod` | Bootstrap, tmux, start/stop | [STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) |
 
 ## Quick start (RunPod)
@@ -19,11 +19,11 @@ This repo is **public**. FluxRT and stack scripts stay **private** — see [docs
 cd /workspace
 git clone https://github.com/gschian0/AI_TV_ORCHESTRATION.git
 
-# 2. Secrets (GITHUB_PAT clones your private forks)
+# 2. Secrets (GITHUB_PAT for private stack-scripts only)
 cp AI_TV_ORCHESTRATION/.env.example AI_TV_ORCHESTRATION/.env
 nano AI_TV_ORCHESTRATION/.env
 
-# 3. Private vendor repos → /workspace/FluxRT + ai-tv-stack-scripts
+# 3. Clone FluxRT (public) + stack-scripts (private)
 bash AI_TV_ORCHESTRATION/bin/clone-vendors.sh
 
 # 4. Stack profile + install + run

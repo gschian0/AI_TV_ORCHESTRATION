@@ -32,7 +32,7 @@ bash AI_TV_ORCHESTRATION/bin/clone-vendors.sh
 cp AI_TV_ORCHESTRATION/stack-profile.env.example /workspace/.stack-profile.env
 ```
 
-Vendor repos (**FluxRT**, **ai-tv-stack-scripts**) are **private** — see [REPOS.md](REPOS.md).
+**FluxRT** is public; **ai-tv-stack-scripts** is private (needs `GITHUB_PAT`) — see [REPOS.md](REPOS.md).
 
 ## 4. Bootstrap
 
