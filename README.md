@@ -42,7 +42,7 @@ bash /workspace/scripts/start_ngrok_gradio.sh
 | [docs/FLUXRT.md](docs/FLUXRT.md) | FluxRT fork for AI TV — UDP 5000, Gradio, quotes, fanout scripts |
 | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) | Bootstrap, tmux windows, station presets, daily commands |
 | [docs/RESTORE.md](docs/RESTORE.md) | New pod / volume restore checklist |
-| [docs/VIDEO_LOGIC.md](docs/VIDEO_LOGIC.md) | Video pipeline notes (bridge off, 8fps, mix bus) |
+| [docs/MUSIC.md](docs/MUSIC.md) | MusicGen diddy profile (~90s instrumental, refining) |
 
 ## Secrets (`.env`)
 

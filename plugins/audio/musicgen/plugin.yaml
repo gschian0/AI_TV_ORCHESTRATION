@@ -2,8 +2,10 @@ id: audio.musicgen
 name: MusicGen Radio+
 category: audio
 status: active
+refining: true
 description: >
   AI music generation conditioned on internet radio stream.
+  Target: consistent ~90 second instrumental diddies (see orchestration docs/MUSIC.md).
   Outputs AAC MPEG-TS to UDP 5002.
 
 repo:
@@ -20,12 +22,18 @@ ports:
 
 env:
   MUSICGEN_DELAY: "180"
-  STREAM_DELAY_SECONDS: "45"
+  MUSICGEN_DIDDY_TARGET_SECONDS: "90"
+  MUSICGEN_GEN_SECONDS: "30"
+  MUSICGEN_PARALLEL_CLIPS: "1"
+  MUSICGEN_CROSSFADE_SECONDS: "2.5"
+  MUSICGEN_STREAM_DELAY_SECONDS: "75"
+  MUSICGEN_TEMPERATURE: "0.74"
 
 start:
   type: tmux_window
   window: audio_src
   delay_seconds: "${MUSICGEN_DELAY}"
   command: |
+    source /workspace/.stack-profile.env 2>/dev/null || true
     RADIO_URL='${RADIO_URL}' MUSICGEN_BASE_PROMPT='${MUSIC_PROMPT}' \
       bash scripts/start_musicgen_radio_plus_musicGEN.sh
