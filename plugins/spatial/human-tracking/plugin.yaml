@@ -1,0 +1,14 @@
+id: spatial.human-tracking
+name: Human Tracking
+category: spatial
+status: planned
+description: >
+  Body / face / hand pose tracking for interactive overlays,
+  gaze-aware cropping, and spatial audio panning.
+
+ports:
+  skeleton_udp: 5030
+  mask_udp: 5031
+
+integration:
+  feeds: spatial.ai-greenscreen-3d, audio.spatial-pan

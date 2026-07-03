@@ -1,0 +1,22 @@
+id: audio.quote-tts
+name: Quote TTS Voice
+category: audio
+status: active
+description: >
+  NVIDIA Magpie TTS reads philosopher quotes from JSON.
+  Streams to UDP 5004 (exclusive — no silence feed on same port).
+
+repo:
+  vendor_path: FluxRT
+  script: scripts/run_quote_tts_from_json.py
+
+ports:
+  tts_out: 5004
+
+env:
+  TTS_INTERVAL: "15.0"
+  TTS_SILENCE: "0.25"
+
+start:
+  type: gradio_ui
+  note: Started from Gradio "Start Quote Voice" button

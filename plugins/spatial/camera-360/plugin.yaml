@@ -1,0 +1,11 @@
+id: spatial.camera-360
+name: 360 Camera Input
+category: spatial
+status: planned
+description: >
+  Equirectangular 360° camera ingest, dewarp, and reprojection
+  for spatial scene understanding.
+
+ports:
+  equirect_in: 5020
+  cubemap_out: 5021

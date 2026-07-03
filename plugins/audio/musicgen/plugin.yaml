@@ -1,0 +1,31 @@
+id: audio.musicgen
+name: MusicGen Radio+
+category: audio
+status: active
+description: >
+  AI music generation conditioned on internet radio stream.
+  Outputs AAC MPEG-TS to UDP 5002.
+
+repo:
+  url: https://github.com/gschian0/FluxRT
+  branch: 5090-runpod
+  vendor_path: FluxRT
+  script: scripts/start_musicgen_radio_plus_musicGEN.sh
+
+requires_gpu: true
+vram_gb_min: 3
+
+ports:
+  audio_out: 5002
+
+env:
+  MUSICGEN_DELAY: "180"
+  STREAM_DELAY_SECONDS: "45"
+
+start:
+  type: tmux_window
+  window: audio_src
+  delay_seconds: "${MUSICGEN_DELAY}"
+  command: |
+    RADIO_URL='${RADIO_URL}' MUSICGEN_BASE_PROMPT='${MUSIC_PROMPT}' \
+      bash scripts/start_musicgen_radio_plus_musicGEN.sh

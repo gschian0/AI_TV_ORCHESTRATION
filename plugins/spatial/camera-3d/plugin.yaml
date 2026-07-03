@@ -1,0 +1,12 @@
+id: spatial.camera-3d
+name: 3D / Multi-Camera Rig
+category: spatial
+status: planned
+description: >
+  Synchronized multi-camera ingest with extrinsic calibration
+  for volumetric and light-field style processing.
+
+ports:
+  cam_left: 5024
+  cam_right: 5025
+  point_cloud: 5026

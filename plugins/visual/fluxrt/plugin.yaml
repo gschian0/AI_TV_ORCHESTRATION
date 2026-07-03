@@ -1,0 +1,40 @@
+id: visual.fluxrt
+name: FluxRT AI Video
+category: visual
+status: active
+description: >
+  Real-time FLUX diffusion video filter with Gradio UI.
+  Publishes processed H264 to UDP 5000 (internal encoder).
+
+repo:
+  url: https://github.com/gschian0/FluxRT
+  branch: 5090-runpod
+  vendor_path: FluxRT
+
+requires_gpu: true
+vram_gb_min: 17
+
+ports:
+  gradio: 7862
+  video_out: 5000
+  input_relay: 5010
+
+env:
+  ENABLE_BRIDGE: "0"
+  AUTO_START_STREAM: "1"
+  AUTO_START_DELAY: "90"
+  lip_transfer_enable: "false"
+
+start:
+  type: tmux_window
+  window: gradio
+  command: |
+    python scripts/run_gradio_stream_demo.py --int8 \
+      --server-name 0.0.0.0 --server-port ${GRADIO_PORT} \
+      --config-path configs/stream_demo_config.json
+
+patches:
+  - lip_transfer disabled in stream_demo_config.json
+  - AUTO_START_STREAM in run_gradio_stream_demo.py
+  - fanout fifo_size in start_rtmp_fanout.sh
+  - sidechain ducking in start_audio_mix_bus.sh

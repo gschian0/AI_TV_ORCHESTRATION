@@ -1,0 +1,14 @@
+id: spatial.depth
+name: Depth Processing
+category: spatial
+status: planned
+description: >
+  Monocular / stereo depth estimation for parallax, relighting,
+  and spatial compositing in the video pipeline.
+
+ports:
+  depth_out: 5012
+
+integration:
+  insert_after: visual.*
+  format: float16 depth map + confidence

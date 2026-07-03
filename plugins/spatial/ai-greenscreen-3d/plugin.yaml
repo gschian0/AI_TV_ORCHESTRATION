@@ -1,0 +1,15 @@
+id: spatial.ai-greenscreen-3d
+name: 3D AI Greenscreen
+category: spatial
+status: planned
+description: >
+  Neural matting + depth-aware background replacement for
+  volumetric compositing without physical green screen.
+
+ports:
+  matte_out: 5034
+  fg_rgba: 5035
+
+requires:
+  - spatial.depth
+  - spatial.human-tracking

@@ -1,0 +1,23 @@
+id: audio.mix-bus
+name: Audio Mix Bus
+category: audio
+status: active
+description: >
+  Sidechain ducking mix — music ducks under TTS, outputs to UDP 5006.
+
+repo:
+  vendor_path: FluxRT
+  script: scripts/streaming/start_audio_mix_bus.sh
+
+ports:
+  music_in: 5002
+  tts_in: 5004
+  mix_out: 5006
+
+env:
+  MUSIC_MIX_VOLUME: "0.55"
+  TTS_MIX_VOLUME: "0.95"
+  ENABLE_TTS_OVERLAY: "0"
+
+filter: |
+  sidechaincompress + amix (dropout_transition=0)

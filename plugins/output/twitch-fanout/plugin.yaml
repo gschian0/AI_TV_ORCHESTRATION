@@ -1,0 +1,25 @@
+id: output.twitch-fanout
+name: Twitch RTMP Fanout
+category: output
+status: active
+description: >
+  Reads UDP 5000 (video) + UDP 5006 (mixed audio).
+  Tee to Twitch RTMP + local HLS monitor on :8090.
+
+repo:
+  vendor_path: FluxRT
+  script: scripts/streaming/start_rtmp_fanout.sh
+
+ports:
+  video_in: 5000
+  audio_in: 5006
+  hls_monitor: 8090
+
+env:
+  FPS: "8"
+  OUTPUT_WIDTH: "288"
+  OUTPUT_HEIGHT: "160"
+  VIDEO_BITRATE: "550k"
+  AUDIO_BITRATE: "128k"
+  ENABLE_TWITCH: "1"
+  ENABLE_LOCAL_MONITOR: "1"
