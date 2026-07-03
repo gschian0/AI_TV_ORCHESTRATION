@@ -19,31 +19,20 @@ If you **keep the RunPod network volume**, `/workspace` (including `AI_TV_ORCHES
 - Template: Ubuntu + CUDA, **network volume** mounted at `/workspace`
 - GPU: RTX 5090 (32GB VRAM recommended)
 
-## 2. Clone repos
+## 2. Clone repos (public first, then private)
 
 ```bash
 cd /workspace
+git clone https://github.com/gschian0/AI_TV_ORCHESTRATION.git
 
-git clone -b 5090-runpod https://github.com/gschian0/FluxRT.git FluxRT
-git clone -b 5090-runpod https://github.com/gschian0/ai-tv-stack-scripts.git ai-tv-stack-scripts
-git clone https://github.com/gschian0/AI_TV_ORCHESTRATION.git AI_TV_ORCHESTRATION
+cp AI_TV_ORCHESTRATION/.env.example AI_TV_ORCHESTRATION/.env
+nano AI_TV_ORCHESTRATION/.env   # GITHUB_PAT + HF + NVIDIA + Twitch + ngrok
 
-# Symlink workspace scripts (or copy from ai-tv-stack-scripts)
-ln -sf /workspace/ai-tv-stack-scripts/*.sh /workspace/
-mkdir -p /workspace/scripts
-cp /workspace/AI_TV_ORCHESTRATION/scripts/*.sh /workspace/scripts/
-chmod +x /workspace/*.sh /workspace/scripts/*.sh
+bash AI_TV_ORCHESTRATION/bin/clone-vendors.sh
+cp AI_TV_ORCHESTRATION/stack-profile.env.example /workspace/.stack-profile.env
 ```
 
-## 3. Secrets + profile
-
-```bash
-cd /workspace/AI_TV_ORCHESTRATION
-cp .env.example .env
-nano .env   # HF, NVIDIA, Twitch, ngrok API key + endpoint — see docs/ENV.md
-
-cp stack-profile.env.example /workspace/.stack-profile.env
-```
+Vendor repos (**FluxRT**, **ai-tv-stack-scripts**) are **private** — see [REPOS.md](REPOS.md).
 
 ## 4. Bootstrap
 

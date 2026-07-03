@@ -14,7 +14,10 @@ nano .env
 
 | Variable | Required | Used for |
 |----------|----------|----------|
-| `GITHUB_PAT` | yes (setup) | Clone FluxRT and stack scripts |
+| `GITHUB_PAT` | yes (setup) | Clone **private** FluxRT + stack scripts |
+| `FLUXRT_REPO` | optional | Default `gschian0/FluxRT` |
+| `STACK_SCRIPTS_REPO` | optional | Default `gschian0/ai-tv-stack-scripts` |
+| `VENDOR_BRANCH` | optional | Default `5090-runpod` |
 | `HF_TOKEN` / `HF_API_KEY` | yes | Hugging Face model downloads |
 | `NVIDIA_API_KEY` | yes | Magpie TTS (Riva) + DiffusionGemma quotes |
 | `TWITCH_STREAM_KEY` | yes (broadcast) | Twitch RTMP fanout |

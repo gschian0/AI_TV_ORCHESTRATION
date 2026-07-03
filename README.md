@@ -2,41 +2,32 @@
 
 Master repo for the **AI TV stack** — an automated AI broadcast pipeline on RunPod (RTX 5090): real-time FLUX video, AI music, quote TTS, and Twitch output.
 
-This repo does **not** contain model code. It holds secrets templates, stack profiles, tunnel scripts, plugin manifests, and **the docs that explain how the vendor repos fit together**.
+This repo is **public**. FluxRT and stack scripts stay **private** — see [docs/REPOS.md](docs/REPOS.md).
 
 ## Repositories
 
 | Repo | Branch | Role | AI TV doc |
 |------|--------|------|-----------|
-| **AI_TV_ORCHESTRATION** (this repo) | `main` | Secrets, profiles, ngrok, restore | — |
-| [FluxRT](https://github.com/gschian0/FluxRT) | `5090-runpod` | Real-time AI video + streaming scripts | [docs/FLUXRT.md](docs/FLUXRT.md) |
-| [ai-tv-stack-scripts](https://github.com/gschian0/ai-tv-stack-scripts) | `5090-runpod` | Bootstrap, setup, start/stop, tmux | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) |
-
-Read **FLUXRT.md** for what the visual engine does. Read **STACK-SCRIPTS.md** for how to boot and run the full stack. The upstream READMEs on those repos include generic / legacy info; these docs are scoped to **your AI TV deployment**.
+| **AI_TV_ORCHESTRATION** (here) | Public | `main` | Docs, templates, ngrok | [REPOS.md](docs/REPOS.md) |
+| FluxRT (your fork) | **Private** | `5090-runpod` | AI video + streaming | [FLUXRT.md](docs/FLUXRT.md) |
+| ai-tv-stack-scripts | **Private** | `5090-runpod` | Bootstrap, tmux, start/stop | [STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) |
 
 ## Quick start (RunPod)
 
 ```bash
-# 1. Clone all three repos
+# 1. Public orchestration repo
 cd /workspace
 git clone https://github.com/gschian0/AI_TV_ORCHESTRATION.git
-git clone -b 5090-runpod https://github.com/gschian0/FluxRT.git
-git clone -b 5090-runpod https://github.com/gschian0/ai-tv-stack-scripts.git
 
-# 2. Secrets — copy template in THIS repo folder
+# 2. Secrets (GITHUB_PAT clones your private forks)
 cp AI_TV_ORCHESTRATION/.env.example AI_TV_ORCHESTRATION/.env
 nano AI_TV_ORCHESTRATION/.env
 
-# 3. Stack profile (non-secret tuning)
+# 3. Private vendor repos → /workspace/FluxRT + ai-tv-stack-scripts
+bash AI_TV_ORCHESTRATION/bin/clone-vendors.sh
+
+# 4. Stack profile + install + run
 cp AI_TV_ORCHESTRATION/stack-profile.env.example /workspace/.stack-profile.env
-
-# 4. Wire workspace scripts
-ln -sf /workspace/ai-tv-stack-scripts/*.sh /workspace/
-mkdir -p /workspace/scripts
-cp /workspace/AI_TV_ORCHESTRATION/scripts/*.sh /workspace/scripts/
-chmod +x /workspace/*.sh /workspace/scripts/*.sh
-
-# 5. Install + run
 bash /workspace/full_setup.sh
 bash /workspace/start_stack.sh
 bash /workspace/scripts/start_ngrok_gradio.sh
@@ -46,6 +37,7 @@ bash /workspace/scripts/start_ngrok_gradio.sh
 
 | Doc | Contents |
 |-----|----------|
+| [docs/REPOS.md](docs/REPOS.md) | Public vs private repo layout |
 | [docs/ENV.md](docs/ENV.md) | `.env` in repo folder — HF, NVIDIA, Gemini, Twitch, ngrok |
 | [docs/FLUXRT.md](docs/FLUXRT.md) | FluxRT fork for AI TV — UDP 5000, Gradio, quotes, fanout scripts |
 | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) | Bootstrap, tmux windows, station presets, daily commands |
