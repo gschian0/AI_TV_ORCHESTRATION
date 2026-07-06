@@ -10,7 +10,7 @@ This repo is **public**. **FluxRT** is public; **stack scripts** are private. Se
 |------|------------|--------|------|-----|
 | **AI_TV_ORCHESTRATION** (here) | Public | `main` | Docs, templates, ngrok | [REPOS.md](docs/REPOS.md) |
 | [FluxRT](https://github.com/gschian0/FluxRT) | Public | `5090-runpod` | AI video (+ streaming scripts for now) | [FLUXRT.md](docs/FLUXRT.md) |
-| ai-tv-stack-scripts | **Private** | `5090-runpod` | Bootstrap, tmux, start/stop | [STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) |
+| ai-tv-stack-scripts | **Private** | `5090-runpod` | Bootstrap, tmux, start/stop | [POD-RESTORE.md](docs/POD-RESTORE.md) | **Restore any pod** — clone, env, venv, models, profiles, boot |
 
 ## Quick start (RunPod)
 
@@ -42,6 +42,7 @@ bash /workspace/scripts/start_ngrok_gradio.sh
 | [docs/FLUXRT.md](docs/FLUXRT.md) | FluxRT fork for AI TV — UDP 5000, Gradio, quotes, fanout scripts |
 | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) | Bootstrap, tmux windows, station presets, daily commands |
 | [docs/RESTORE.md](docs/RESTORE.md) | New pod / volume restore checklist |
+| [docs/POD-RESTORE.md](docs/POD-RESTORE.md) | **Full pod restore** — branches, venv, HF, profiles, boot, troubleshooting |
 | [docs/MUSIC.md](docs/MUSIC.md) | MusicGen diddy profile (~90s instrumental, refining) |
 
 ## Secrets (`.env`)
