@@ -43,6 +43,7 @@ bash /workspace/scripts/start_ngrok_gradio.sh
 | [docs/STACK-SCRIPTS.md](docs/STACK-SCRIPTS.md) | Bootstrap, tmux windows, station presets, daily commands |
 | [docs/RESTORE.md](docs/RESTORE.md) | New pod / volume restore checklist |
 | [docs/POD-RESTORE.md](docs/POD-RESTORE.md) | **Full pod restore** — branches, venv, HF, profiles, boot, troubleshooting |
+| [docs/TTS-AUDIO-UDP-FIX.md](docs/TTS-AUDIO-UDP-FIX.md) | Quote TTS + UDP mix bus fix (copy-paste for RunPod) |
 | [docs/MUSIC.md](docs/MUSIC.md) | MusicGen diddy profile (~90s instrumental, refining) |
 
 ## Secrets (`.env`)

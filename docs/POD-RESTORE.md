@@ -185,7 +185,8 @@ cp /workspace/FluxRT/scripts/streaming/rtmp_targets.env.example \
 | Symptom | Check |
 |---------|-------|
 | Black Twitch / `mean=0.00` | CUDA OOM — stop MusicGen, restart Gradio |
-| Fanout dies ~25s | `/tmp/fluxrt-rtmp-fanout.log` — use `VIDEO_TRANSCODE_MODE=copy`, `ENABLE_RECONNECT_BARS=0` |
+| Fanout dies ~25s / PPS errors | `/tmp/fluxrt-rtmp-fanout.log` — use `VIDEO_TRANSCODE_MODE=transcode`, `ENABLE_RECONNECT_BARS=0`, `WAIT_FOR_VIDEO_READY=0` in `go_live.sh` |
 | Skip/stop on Twitch | Reconnect color bars — set `ENABLE_RECONNECT_BARS=0` |
+| Choppy / fighting TTS | [TTS-AUDIO-UDP-FIX.md](TTS-AUDIO-UDP-FIX.md) — one writer per UDP port, fanout reads 5006 only |
 | Models missing | `ls FluxRT/FLUX.2-klein-4B-int8 RIFE-safetensors` |
-| Liquidsoap missing | `apt install liquidsoap` or set `USE_LIQUIDSOAP_MIX=0` |
+| Liquidsoap missing or root denied | `apt install liquidsoap` or set `USE_LIQUIDSOAP_MIX=0` (`.liq` includes `allow_root` if you enable it) |
